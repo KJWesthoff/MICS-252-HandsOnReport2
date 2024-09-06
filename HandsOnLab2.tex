@@ -82,14 +82,21 @@ MICS Course 252 Fall 2024 (Kristy Westphal)
 %----------------------------------------------------------------------------------------
 
 \section{Introduction}
-Introduction Here
-I extensively used the walkthroughs in \cite{CycubicsDocsWebGoat}
+I went through the webGoat exercises and managed to solve most of them, I extensively used the walkthroughs in \cite{CycubicsDocsWebGoat}.
+I couldn't get the quiz parts to work and some of the exercised were apparently not working properly for example: 
+\begin{itemize}
+
+\item{The last of the JWT exercised reported in Appendix \ref{app:jwtTokens} were in 2 versions (I think), of which I could only solve one, see Appendix \ref{app:JWT1618}}.  
+\item{The Pasword reset link exersize Appendix \ref{app:pwReset}, I did get the link redirect to work, but the reset endpoint itself seems to be broken (it also gave me problems using my own credentials)} 
+\end{itemize}
 
 \section{Lessons Learned}
-LL Here
-I liked the hidden SQL vulnerability in a dynamically added id header for a JWT token
-Reset password exercise is nefariously interesting
-
+Of the exercises I worked with this week, 3 stood out:
+\begin{itemize}
+	\item{Insecure Login, JWT tokens exercise 16/18, Reported in Appendix \ref{app:JWT1618}, where the header properties of a JWT are defined dynamically, in this case including a SQL injection vulnerability. Lesson learned: More complexity creates more vulnerabilities}
+	\item{Insecure Login, password reset, (reported in Appendix \ref{app:pwReset6}) was interesting. Lesson Learned: Do not trust any user inputs (in this case user controlled input was used to generate a link endpoint)}
+	\item{Vuln. and Outdated Components, the CVE-2013-7285 (XStream) exercise (reported in Appendix \ref{app:XStrem}). Lesson Learned: Supply chain vulnerabilities, and need for caution when importing and using 3rd party libraries}
+\end{itemize}
 
 \section{Topics for Further Exploration}
 Topics Here
@@ -136,7 +143,7 @@ Conclusion Here
 
 \section{Identity and Authentication Failure}}\label{app:AuthAndFailure}
 \subsection{Authentication Bypass}
-There is  a bug in the password reset system, changing the names in the http POST payload solves the assignment   
+There is  a bug in the password reset system, changing the names in the http POST payload solves the assignment, see Figure \ref{fig:app:AuthBypass}   
 
 \begin{figure}[!ht] % Single column figure
 	\centering
@@ -146,7 +153,7 @@ There is  a bug in the password reset system, changing the names in the http POS
 \end{figure}
 
 \subsection{Insecure Login}
-For some reason some credentials are hardcoded or left from previous logins when sending the POST request empty.
+For some reason some credentials are hardcoded or left from previous logins when sending the POST request empty, see Figure \ref{fig:app:InsecureLogin}.
 
 \begin{figure}[!ht] % Single column figure
 	\centering
@@ -155,14 +162,14 @@ For some reason some credentials are hardcoded or left from previous logins when
 	\label{fig:app:InsecureLogin}
 \end{figure}
 
-\subsection{JWT Tokens}
+\subsection{JWT Tokens}\label{app:jwtTokens}
 JWT tokens are sometimes used in place of authentication cookies, i.e. without the cross reference protections the browser offers. JWT's are basically ways to send information verified by signatures. In this case the header can be manipulated not to do the verification and blindly trust the token.
 
 \subsubsection{JWT(4)}
-Decoded the token on jwt.io and found 'user'
+Decoded the token on jwt.io and found 'user' as the name
 
-\subsubsecion{JWT(6)}
-Decoded and manipulated the token using Burps Decoder , setting the signature alg to 'none' and admin to true and got "something" accepted 202
+\subsubsection{JWT(6)}
+Decoded and manipulated the token using Burps Decoder , setting the signature alg to 'none' and admin to true and got "something" accepted 202, see Figure \ref{fig:app:JWT6} I am not sure this was the intent of the exercise, but it is how far i got.  
 
 \begin{figure}[!ht] % Single column figure
 	\centering
@@ -171,16 +178,16 @@ Decoded and manipulated the token using Burps Decoder , setting the signature al
 	\label{fig:app:JWT6}
 \end{figure}
 
-\subsubsecion{JWT(8)}
+\subsubsection{JWT(8)}
 I was unable to load the Quiz..
 
 
-\subsubsecion{JWT(11)}
-JWT Cracking
+\subsubsection{JWT(11)}
+JWT Cracking, decided to skip this exercise, intent was to use hashcat and wordlists to break the sha code, but I do not have the tools installed in the machine used for WebGoat.. 
 
 
 \subsubsection{JWT(13) Refresh Tokens}
-Manipulated the token by setting the algorithm to 'none' and manipulating the expiation
+Manipulated the token by setting the algorithm to 'none' and manipulating the expiation, see Figure \ref{fig:app:JWT13}
 
 \begin{figure}[!ht] % Single column figure
 	\centering
@@ -190,12 +197,12 @@ Manipulated the token by setting the algorithm to 'none' and manipulating the ex
 \end{figure}
 
 
-\subsubsection{JWT(16/18) Avanced Token generation..}
-I found this one difficult and relied on a walkthrough from \cite{MediumJWT8}, where references to the WebGoat source code was used to solve the assignment.
+\subsubsection{JWT(16/18) Avanced Token generation..}\label{app:JWT1618}
+I found this one difficult and relied on a walkthrough from \cite{MediumJWT8}, where references to the WebGoat source code in GitHub was used to solve the assignment. 
 
 \begin{figure}[!ht] % Single column figure
 	\centering
-	\includegraphics[width=0.25\linewidth]{JWT16_404.png}
+	\includegraphics[width=0.5\linewidth]{JWT16_404.png}
 	\caption{Could not find the "/WebGoat/JWT/final/delete" endpoint turns out the right page is in 18}
 	\label{fig:app:JWT16}
 \end{figure}
@@ -214,7 +221,7 @@ All signed with "new\_key": giving:
 	\label{fig:app:JWT18}
 \end{figure}
 
-\subsection{Password reset}
+\subsection{Password reset}\label{app:pwReset}
 
 \subsubsection{Password Reset 2: Email functionality with WebWolf}
 
@@ -238,7 +245,7 @@ All signed with "new\_key": giving:
 Will be sure not to implement.
 
 
-\subsubsection{Password Reset 6: Creating the password reset link}
+\subsubsection{Password Reset 6: Creating the password reset link}\label{app:pwReset6}
 
 Redirecting the reset password link, the link is generated by a the Host in the POST header (which can be manipulated) and a  random number. The link is sent to whatever email is in the payload see figure \ref{fig:app:pwreset-redirect}. The link is then redirected to WebWolf which we control \ref{fig:app:pwreset-intercept}. Unfortunately i think the reset mechanism is broken, after supplying the reset password, I am directed to an error page. 
 
@@ -278,8 +285,8 @@ See Figure \ref{fig:app:SecurePW}
 	\label{fig:app:vuln5}
 \end{figure}
 
-\subsection{(12)Exploiting CVE-2013-7285 (XStream)}\label{app:VulnAndOutdatedComponents12}
-This one is scary. XStream is a serial/de-serializer for XML, JSON etc. when used as a deserializer, it opens up possibility of an OS command injection resulting in remote code execution. XStream.fromXML deserializes into an Java Object, vulnerable to OS injection as <interface>org.owasp.webgoat.lessons.vulnerablecomponents.Contact</interface> the Contact function will be executed   
+\subsection{(12)Exploiting CVE-2013-7285 (XStream)}\label{app:VulnAndOutdatedComponents12}\label{app:XStrem}
+This one is scary. XStream is a serial/de-serializer for XML, JSON etc. when used as a deserializer, it opens up possibility of an OS command injection resulting in remote code execution. XStream.fromXML deserializes into an Java Object, vulnerable to OS injection as <interface>org.owasp.webgoat.lessons.vulnerable components.Contact</interface> the Contact function will be executed   
 
 \begin{figure}[!ht] % Single column figure
 	\centering
@@ -302,7 +309,7 @@ See solved Figure \ref{fig:app:LetsTry}
 
 \begin{figure}[!htp] % Single column figure
 	\centering
-	\includegraphics[width=0.3\linewidth]{VulnOutdatedSolved.png}
+	\includegraphics[width=0.3\linewidth]{LetsTry.png}
 	\caption{Lets Try solved using inspiration from \cite{CycubicsDocsWebGoat}, username: admin, pw: url encoded Za\%0d\%a}
 	\label{fig:app:LetsTry}
 \end{figure}
@@ -310,6 +317,12 @@ See solved Figure \ref{fig:app:LetsTry}
 \subsection{Lets Try (4)}
 See Figure \ref{fig:app:LogBleeding}
 
+\begin{figure}[!htp] % Single column figure
+	\centering
+	\includegraphics[width=\linewidth]{LogBleeding.png}
+	\caption{The Password is leaked, internally on the server (exploitation requires access to the server)}
+	\label{fig:app:LogBleeding}
+\end{figure}
 
 \section{Client Side}\label{app:ClientSide}
 
@@ -348,7 +361,9 @@ Found Bartholomew's salary in a hidden table in the DOM, see Figure \ref{fig:app
 \end{figure}
 
 \subsubsection{Samsung Galaxy S8}
-Filling out the form an looking at Network traffic in the chrome tools, there is an endpoint for the coupons. If a invalid coupon is entered, the server returns a massage, if the field is left empty there is no traffic. If hitting the endpoint anyway, the code is included in the server response, see Figure \ref{fig:app:samsungResponse}
+Filling out the form an looking at Network traffic in the chrome tools, there is an endpoint for the coupons. If a invalid coupon is entered, the server returns a massage, if the field is left empty there is no traffic. If hitting the endpoint anyway, the code is included in the server response,
+see Figure \ref{fig:app:samsungResponse}
+
 
 \begin{figure}[!htp] % Single column figure
 	\centering
